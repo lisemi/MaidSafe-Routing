@@ -120,6 +120,14 @@ Routing::Impl::Impl(bool client_mode, const NodeId& node_id, const asymm::Keys& 
 Routing::Impl::~Impl() {
   LOG(kVerbose) << "~Impl " << DebugId(kNodeId_) << ", connection id "
                 << DebugId(routing_table_.kConnectionId());
+  if (routing_table_.size() > 0) {
+	  for (uint16_t i = 0; i < routing_table_.size(); ++i) {
+		  NodeInfo remove_node = routing_table_.GetClosestNode(kNodeId_);
+		  network_.Remove(remove_node.connection_id);
+		  routing_table_.DropNode(remove_node.node_id, true);
+	  }
+	  NotifyNetworkStatus(static_cast<int>(routing_table_.size()));
+  }
   std::lock_guard<std::mutex> lock(running_mutex_);
   running_ = false;
 }
