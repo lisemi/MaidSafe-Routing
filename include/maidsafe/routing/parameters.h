@@ -61,6 +61,7 @@ struct Parameters {
   static std::chrono::seconds firewall_message_life;
   static unsigned int public_key_holding_time;
   static bool caching;
+  static unsigned int fixed_bootstrap_port;
 
  private:
   Parameters();
