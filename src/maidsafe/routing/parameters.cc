@@ -61,6 +61,7 @@ bptime::time_duration Parameters::connect_rpc_prune_timeout(
 uint32_t Parameters::max_data_size(rudp::ManagedConnections::kMaxMessageSize() - 10240);
 // TODO(Prakash): BEFORE_RELEASE enable caching after persona tests are passing
 bool Parameters::caching(true);
+unsigned int Parameters::fixed_bootstrap_port(0);
 }  // namespace routing
 
 }  // namespace maidsafe

@@ -69,7 +69,11 @@ Network::~Network() {
 int Network::Bootstrap(const rudp::MessageReceivedFunctor& message_received_functor,
                             const rudp::ConnectionLostFunctor& connection_lost_functor) {
   BootstrapContacts bootstrap_contacts{ GetBootstrapContacts(routing_table_.client_mode()) };
-  return DoBootstrap(message_received_functor, connection_lost_functor, bootstrap_contacts);
+
+  if (Parameters::fixed_bootstrap_port != 0)
+	  return DoBootstrap(message_received_functor, connection_lost_functor, bootstrap_contacts, boost::asio::ip::udp::endpoint(GetLocalIp(), Parameters::fixed_bootstrap_port));
+  else
+	return DoBootstrap(message_received_functor, connection_lost_functor, bootstrap_contacts);
 }
 
 int Network::ZeroStateBootstrap(const rudp::MessageReceivedFunctor& message_received_functor,
