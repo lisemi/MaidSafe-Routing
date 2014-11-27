@@ -129,6 +129,7 @@ class Routing::Impl : public std::enable_shared_from_this<Routing::Impl> {
   int network_status();
 
   std::vector<NodeInfo> ClosestNodes();
+  void ReBootstrap();
 
   bool IsConnectedVault(const NodeId& node_id);
   bool IsConnectedClient(const NodeId& node_id);
@@ -145,7 +146,6 @@ class Routing::Impl : public std::enable_shared_from_this<Routing::Impl> {
   void DoJoin();
   void Bootstrap();
   int DoBootstrap();
-  void ReBootstrap();
   void FindClosestNode(const boost::system::error_code& error_code, int attempts);
   void ReSendFindNodeRequest(const boost::system::error_code& error_code, bool ignore_size);
   void OnMessageReceived(const std::string& message);

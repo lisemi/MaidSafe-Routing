@@ -208,7 +208,7 @@ void Routing::Impl::Bootstrap() {
 
 int Routing::Impl::DoBootstrap() {
   // FIXME race condition if a new connection appears at rudp -- rudp should handle this
-  assert(routing_table_->size() == 0);
+  //assert(routing_table_->size() == 0);
   recovery_timer_.cancel();
   setup_timer_.cancel();
   std::lock_guard<std::mutex> lock(running_mutex_);

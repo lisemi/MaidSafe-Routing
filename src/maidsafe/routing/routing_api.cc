@@ -103,6 +103,14 @@ bool Routing::IsConnectedClient(const NodeId& node_id) {
   return pimpl_->IsConnectedClient(node_id);
 }
 
+std::vector<NodeInfo> Routing::ClosestNodes(){
+    return pimpl_->ClosestNodes();
+}
+
+void Routing::ReBootstrap(){
+    pimpl_->ReBootstrap();
+}
+
 void UpdateNetworkHealth(int updated_health, int& current_health, std::mutex& mutex,
                          std::condition_variable& cond_var, const NodeId& this_node_id) {
   {

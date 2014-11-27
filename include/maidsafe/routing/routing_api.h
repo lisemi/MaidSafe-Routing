@@ -146,6 +146,9 @@ class Routing {
   // Checks if client routing table contains given node id
   bool IsConnectedClient(const NodeId& node_id);
 
+  std::vector<NodeInfo> ClosestNodes();
+  void ReBootstrap();
+    
   friend class test::GenericNode;
 
  private:
