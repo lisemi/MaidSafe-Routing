@@ -87,7 +87,9 @@ void PublicKeyHolder::Remove(const NodeId& peer) {
       timer = element->timer;
     }
   }
-  timer->cancel();
+  if (timer != nullptr) {
+      timer->cancel();
+  }
 }
 
 }  // namespace routing
