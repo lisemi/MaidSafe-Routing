@@ -43,7 +43,7 @@ std::chrono::seconds Parameters::recovery_time_lag(5);
 std::chrono::seconds Parameters::re_bootstrap_time_lag(10);
 std::chrono::seconds Parameters::find_close_node_interval(3);
 unsigned int Parameters::find_node_repeats_per_num_requested(3);
-unsigned int Parameters::maximum_find_close_node_failures(20);
+unsigned int Parameters::maximum_find_close_node_failures(10);
 unsigned int Parameters::max_route_history(3);
 unsigned int Parameters::hops_to_live(50);
 unsigned int Parameters::accepted_distance_tolerance(1);

@@ -102,7 +102,7 @@ Routing::Impl::Impl(bool client_mode, const NodeId& node_id, const asymm::Keys& 
       // TODO(Prakash) : don't create client_routing_table for client nodes (wrap both)
       client_routing_table_(node_id),
       message_handler_(),
-      asio_service_(2),
+      asio_service_(Parameters::thread_count),
       network_utils_(node_id, asio_service_),
       network_(maidsafe::make_unique<Network>(*routing_table_, client_routing_table_,
                                               network_utils_.acknowledgement_)),
