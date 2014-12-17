@@ -27,12 +27,12 @@ namespace maidsafe {
 
 namespace routing {
 
-unsigned int Parameters::thread_count(8);
+unsigned int Parameters::thread_count(6);
 unsigned int Parameters::num_chunks_to_cache(100);
 unsigned int Parameters::closest_nodes_size(16);
 unsigned int Parameters::group_size(6);
 unsigned int Parameters::proximity_factor(2);
-unsigned int Parameters::max_routing_table_size(64);
+unsigned int Parameters::max_routing_table_size(32);
 unsigned int Parameters::routing_table_size_threshold(max_routing_table_size / 4);
 unsigned int Parameters::max_routing_table_size_for_client(8);
 unsigned int Parameters::max_client_routing_table_size(max_routing_table_size);
@@ -51,7 +51,7 @@ unsigned int Parameters::max_send_retry(3);
 unsigned int Parameters::ack_timeout(5);
 unsigned int Parameters::firewall_history_cleanup_factor(5000);
 std::chrono::seconds Parameters::firewall_message_life(300);
-unsigned int Parameters::public_key_holding_time(60);
+unsigned int Parameters::public_key_holding_time(30);
 unsigned int Parameters::unidirectional_interest_range(Parameters::closest_nodes_size * 2);
 std::chrono::steady_clock::duration Parameters::local_retreival_timeout(std::chrono::seconds(2));
 unsigned int Parameters::routing_table_ready_to_response(Parameters::max_routing_table_size / 2);
