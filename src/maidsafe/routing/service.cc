@@ -155,6 +155,7 @@ void Service::SendConnectResponse(protobuf::Message message, const NodeInfo& pee
 #ifdef TESTING
   connect_response.set_timestamp(GetTimeStamp());
 #endif
+  connect_response.set_op_code(-1);
   connect_response.set_original_request(message.data(0));
   connect_response.set_original_signature(message.signature());
 
@@ -196,11 +197,13 @@ void Service::SendConnectResponse(protobuf::Message message, const NodeInfo& pee
                     << ". peer_endpoint_pair.external = " << peer_endpoint_pair.external
                     << ", peer_endpoint_pair.local = " << peer_endpoint_pair.local
                     << ". Rudp returned :" << ret_val;
+        connect_response.set_op_code(3);
         message.add_data(connect_response.SerializeAsString());
         return;
       } else {  // Resolving collision by giving priority to lesser node id.
         if (!CheckPriority(peer_node.id, routing_table_.kNodeId())) {
           connect_response.set_answer(protobuf::ConnectResponseType::kConnectAttemptAlreadyRunning);
+          connect_response.set_op_code(4);
           message.add_data(connect_response.SerializeAsString());
           return;
         }
@@ -226,7 +229,14 @@ void Service::SendConnectResponse(protobuf::Message message, const NodeInfo& pee
                           connect_response.mutable_contact()->mutable_private_endpoint());
       SetProtobufEndpoint(this_endpoint_pair.external,
                           connect_response.mutable_contact()->mutable_public_endpoint());
+      connect_response.set_op_code(0);
+    } else {
+        //track error
+        connect_response.set_op_code(2);
     }
+  } else {
+      //track error
+      connect_response.set_op_code(1);
   }
 
   message.add_data(connect_response.SerializeAsString());

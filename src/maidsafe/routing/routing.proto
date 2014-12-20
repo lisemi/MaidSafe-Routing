@@ -103,6 +103,7 @@ message ConnectResponse {
   optional uint64 timestamp = 5;
   required bytes original_request = 6;
   required bytes original_signature = 7;
+  optional int32 op_code = 8;   //track errno
 }
 
 message ConnectSuccess {

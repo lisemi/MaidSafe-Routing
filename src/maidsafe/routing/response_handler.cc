@@ -80,16 +80,33 @@ void ResponseHandler::Connect(protobuf::Message& message) {
     return;
   }
 
+  static std::map<NodeId,int> mapReject;
+  static int total_Reject = 0;
   if (connect_response.answer() == protobuf::ConnectResponseType::kRejected) {
+    NodeId peer_id = NodeId(message.source_id());
+    auto iter = mapReject.find(peer_id);
+    int err = -2;
+    if(connect_response.has_op_code())
+        err = connect_response.op_code();
+    
+    if(iter == std::end(mapReject)) {
+        mapReject.insert(std::make_pair(peer_id, 1));
+        std::cout << "Rejected" << " <--" << DebugId(NodeId(message.source_id())) << "[1], reason " << err << ", Reject " << ++total_Reject << std::endl;
+    } else {
+        (*iter).second++;
+        std::cout << "Rejected" << " <--" << DebugId(NodeId(message.source_id())) << "[" << (*iter).second << "], reason " << err << ",Reject " << ++total_Reject << std::endl;
+    }
     return;
   }
 
   if (connect_response.answer() == protobuf::ConnectResponseType::kConnectAttemptAlreadyRunning) {
+    std::cout << "ConnectAttemptAlreadyRunning" << " <-- " << DebugId(NodeId(message.source_id())) << std::endl;
     return;
   }
 
   if (!NodeId(connect_response.contact().node_id()).IsValid()) {
     LOG(kError) << "Invalid contact details";
+    std::cout << "Invalid contact details" << std::endl;
     return;
   }
 
@@ -106,6 +123,7 @@ void ResponseHandler::Connect(protobuf::Message& message) {
     if (peer_endpoint_pair.external.address().is_unspecified() &&
         peer_endpoint_pair.local.address().is_unspecified()) {
       LOG(kError) << "Invalid peer endpoint details";
+      std::cout << "Invalid peer endpoint details" << std::endl;
       return;
     }
 
@@ -114,10 +132,22 @@ void ResponseHandler::Connect(protobuf::Message& message) {
 
     if (!public_key_holder_.Find(peer_node_id)) {
       LOG(kError)  << "missing public key ";
+      std::cout << "missing public key " << std::endl;
       message.Clear();
       return;
     }
-
+    
+    static int valid_response = 0;
+    static std::map<NodeId,int> mapResponse;
+    auto iter = mapResponse.find(peer_node_id);
+    if(iter == std::end(mapResponse)) {
+        mapResponse.insert(std::make_pair(peer_node_id,1));
+        std::cout << "id " << message.id() << ", valid_response = " << ++valid_response << " <-- " << DebugId(peer_node_id) << "[1]" << std::endl;
+    } else {
+        (*iter).second++;
+        std::cout << "id " << message.id() << ", valid_response = " << ++valid_response << " <-- " << DebugId(peer_node_id) << "[" << (*iter).second << "]" << std::endl;
+    }
+    
     auto result(AddToRudp(network_, routing_table_.kNodeId(), routing_table_.kConnectionId(),
                           peer_node_id, peer_connection_id, peer_endpoint_pair, true,  // requestor
                           routing_table_.client_mode()));
@@ -152,9 +182,8 @@ void ResponseHandler::FindNodes(const protobuf::Message& message) {
   //    LOG(kError) << " find node request was not signed by us";
   //    return;  // we never requested this
   //  }
-
   for (int i = 0; i < find_nodes_response.nodes_size(); ++i) {
-    if (!find_nodes_response.nodes(i).empty())
+    if (!find_nodes_response.nodes(i).empty()) 
       CheckAndSendConnectRequest(NodeId(find_nodes_response.nodes(i)));
   }
 }
@@ -202,11 +231,26 @@ void ResponseHandler::SendConnectRequest(const NodeId peer_node_id) {
     protobuf::Message connect_rpc(rpcs::Connect(
         peer.id, this_endpoint_pair, routing_table_.kNodeId(), routing_table_.kConnectionId(),
         routing_table_.client_mode(), this_nat_type, relay_message, relay_connection_id));
+
+    static int valid_request = 0;
+    static std::map<NodeId,int> mapValid_Request;
+    auto iter = mapValid_Request.find(peer.id);
+    if(iter == std::end(mapValid_Request)) {
+        mapValid_Request.insert(std::make_pair(peer.id,1));
+        std::cout << "id " << connect_rpc.id() << ", valid_request = " << ++valid_request << " ->" << DebugId(peer.id) << "[1]" << std::endl;
+    } else {
+        (*iter).second ++;
+        std::cout << "id " << connect_rpc.id() << ", valid_request = " << ++valid_request << " ->" << DebugId(peer.id) << "[" << (*iter).second << "]" << std::endl;
+    }
+
     if (send_to_bootstrap_connection)
       network_.SendToDirect(connect_rpc, network_.bootstrap_connection_id(),
                             network_.bootstrap_connection_id());
     else
       network_.SendToClosestNode(connect_rpc);
+  } else {
+      LOG(kWarning) << "[" << DebugId(routing_table_.kNodeId()) << "] SendConenect request failed, because of CheckNode failed [" << DebugId(peer.id) << "]";
+      std::cout << "[" << DebugId(routing_table_.kNodeId()) << "] SendConenect request failed, because of CheckNode failed [" << DebugId(peer.id) << "]";
   }
 }
 
