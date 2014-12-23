@@ -98,7 +98,7 @@ int Network::DoBootstrap(const rudp::MessageReceivedFunctor& message_received_fu
     return kInvalidBootstrapContacts;
 
   assert(connection_lost_functor && "Must provide a valid functor");
-  assert(bootstrap_connection_id_.IsZero() && "bootstrap_connection_id_ must be empty");
+  assert(!bootstrap_connection_id_.IsValid() && "bootstrap_connection_id_ must be empty");
   auto private_key(std::make_shared<asymm::PrivateKey>(routing_table_.kPrivateKey()));
   auto public_key(std::make_shared<asymm::PublicKey>(routing_table_.kPublicKey()));
 
@@ -106,7 +106,7 @@ int Network::DoBootstrap(const rudp::MessageReceivedFunctor& message_received_fu
                              connection_lost_functor, routing_table_.kConnectionId(), private_key,
                              public_key, bootstrap_connection_id_, nat_type_, local_endpoint));
   // RUDP will return a kZeroId for zero state !!
-  if (result != kSuccess || bootstrap_connection_id_.IsZero()) {
+  if (result != kSuccess || !bootstrap_connection_id_.IsValid()) {
     LOG(kError) << "No Online Bootstrap Node found.";
     return kNoOnlineBootstrapContacts;
   }
@@ -229,13 +229,13 @@ void Network::SendToClosestNode(const protobuf::Message& message) {
 
 void Network::SendTo(const protobuf::Message& message, const NodeId& peer_node_id,
                           const NodeId& peer_connection_id,  bool no_ack_timer) {
-  const std::string kThisId(routing_table_.kNodeId().string());
+  std::shared_ptr<std::string> kThisId(new std::string(routing_table_.kNodeId().string()));
   rudp::MessageSentFunctor message_sent_functor = [=](int message_sent) {
     if (rudp::kSuccess == message_sent) {
       SendAck(message);
     } else {
       LOG(kError) << "Sending type " << MessageTypeString(message) << " message from "
-                  << HexSubstr(kThisId) << " to " << peer_node_id << " failed with code "
+                  << HexSubstr(*kThisId) << " to " << peer_node_id << " failed with code "
                   << message_sent << " id: " << message.id();
     }
   };
@@ -374,7 +374,7 @@ void Network::AdjustRouteHistory(protobuf::Message& message) {
                                              message.route_history().end());
       message.clear_route_history();
       for (const auto& route : route_history) {
-        if (!NodeId(route).IsZero())
+        if (NodeId(route).IsValid())
           message.add_route_history(route);
       }
     }
@@ -401,7 +401,7 @@ maidsafe::NodeId Network::this_node_relay_connection_id() const {
 
 rudp::NatType Network::nat_type() const { return nat_type_; }
 
-void Network::SendAck(const protobuf::Message& message) {
+void Network::SendAck(const protobuf::Message message) {
   if (message.ack_id() == 0)
     return;
 
