@@ -232,7 +232,7 @@ void Service::SendConnectResponse(protobuf::Message message, const NodeInfo& pee
       connect_response.set_op_code(0);
     } else {
         //track error
-        connect_response.set_op_code(2);
+        connect_response.set_op_code(add_result);
     }
   } else {
       //track error
