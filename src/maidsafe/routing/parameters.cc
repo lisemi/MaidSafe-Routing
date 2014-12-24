@@ -27,7 +27,7 @@ namespace maidsafe {
 
 namespace routing {
 
-unsigned int Parameters::thread_count(6);
+unsigned int Parameters::thread_count(8);
 unsigned int Parameters::num_chunks_to_cache(100);
 unsigned int Parameters::closest_nodes_size(16);
 unsigned int Parameters::group_size(6);
