@@ -30,7 +30,7 @@ namespace routing {
 unsigned int Parameters::thread_count(8);
 unsigned int Parameters::num_chunks_to_cache(100);
 unsigned int Parameters::closest_nodes_size(8);
-unsigned int Parameters::group_size(6);
+unsigned int Parameters::group_size(3);
 unsigned int Parameters::proximity_factor(2);
 unsigned int Parameters::max_routing_table_size(32);
 unsigned int Parameters::routing_table_size_threshold(max_routing_table_size / 4);
